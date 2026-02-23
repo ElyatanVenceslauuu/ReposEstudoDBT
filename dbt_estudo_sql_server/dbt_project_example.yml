@@ -1,0 +1,144 @@
+# dbt_project.yml (template bem completo)
+
+name: "dbt_estudo_sql_server"     # nome do projeto
+version: "1.0.0"                  # versão do projeto
+config-version: 2                 # obrigatório/recomendado
+
+profile: "dbt_estudo_sql_server"  # deve bater com o profile no profiles.yml
+
+# Opcional: restringe a versão do dbt (ajuda a evitar surpresas)
+require-dbt-version: [">=1.7.0", "<2.0.0"]
+
+# Caminhos padrão (você pode mudar conforme seu layout)
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+# Onde o dbt vai gerar artefatos (manifest, run_results, docs, etc.)
+target-path: "target"
+
+# Pastas removidas no dbt clean
+clean-targets:
+  - "target"
+  - "dbt_packages"
+  - "logs"
+
+# Onde o dbt instala pacotes (quando você usa packages.yml)
+packages-install-path: "dbt_packages"
+
+# Variáveis globais (acessadas via var('nome_var'))
+vars:
+  ambiente: "dev"
+  timezone: "America/Maceio"
+  # exemplo de lista/dict
+  lista_siglas_hosp: ["HSBA", "HSBO"]
+  parametros:
+    carga_full: false
+    dias_reprocessamento: 7
+
+# Hooks globais (executam no início/fim de `dbt run/test/build`)
+# (Pode ser string ou lista de strings)
+on-run-start:
+  - "select 1 as on_run_start"
+  # - "{{ log('Iniciando execução dbt...', info=True) }}"
+
+on-run-end:
+  - "select 1 as on_run_end"
+  # - "{{ log('Finalizando execução dbt...', info=True) }}"
+
+# Quoting (como o dbt vai tratar aspas em database/schema/identifier)
+# Em SQL Server, normalmente você não precisa mexer, mas fica aqui o exemplo.
+quoting:
+  database: false
+  schema: false
+  identifier: false
+
+# Dispatch: útil quando você tem macros com o mesmo nome em pacotes diferentes
+dispatch:
+  - macro_namespace: "dbt"
+    search_order: ["dbt_estudo_sql_server", "dbt"]
+
+# Flags do dbt (varia por versão; use só se souber o impacto)
+# flags:
+#   send_anonymous_usage_stats: false
+#   use_colors: true
+#   warn_error: true
+
+# CONFIGS POR RECURSO
+# Tudo abaixo aplica “por pasta” e pode ser sobrescrito no próprio model com config()
+models:
+  dbt_estudo_sql_server:
+    # Defaults para TODOS os models do projeto
+    +enabled: true
+    +persist_docs:
+      relation: true
+      columns: true
+    +tags: ["dbt_estudo_sql_server"]
+    # +database: "ESTUDOS"         # (se quiser fixar database no projeto)
+    # +schema: "DBT_ESTUDO"        # (se quiser fixar schema padrão)
+    # +alias: "nome_fisico"        # (raramente global)
+    # +grants:                     # (depende do adapter e permissões)
+    #   select: ["role_leitura"]
+
+    # Exemplo: configs por “camada/pasta”
+    stage:
+      +materialized: ephemeral     # staging ephemeral
+      +tags: ["stage"]
+      # +schema: "stg"             # (se quiser separar schema)
+      # +pre-hook: ["select 1"]    # pre-hook por pasta
+      # +post-hook: ["select 1"]   # post-hook por pasta
+
+    trusted:
+      +materialized: table
+      +schema: "trusted"
+      +tags: ["trusted"]
+      # +on_schema_change: "sync_all_columns"   # mais comum em incremental
+      # +contract:
+      #   enforced: true
+
+    refined:
+      +materialized: table
+      +schema: "refined"
+      +tags: ["refined"]
+
+    # Exemplo: pasta “marts” com defaults próprios
+    marts:
+      +materialized: table
+      +schema: "mart"
+      +tags: ["mart"]
+
+# Seeds (CSV em /seeds)
+seeds:
+  dbt_estudo_sql_server:
+    +enabled: true
+    +schema: "seed"
+    # +quote_columns: false
+    # +column_types:
+    #   id: int
+    #   dt_ref: datetime2
+
+# Snapshots (controle de histórico)
+snapshots:
+  dbt_estudo_sql_server:
+    +enabled: true
+    +schema: "snapshots"
+    # +tags: ["snapshots"]
+
+# Tests (genéricos e singular tests)
+tests:
+  dbt_estudo_sql_server:
+    +enabled: true
+    # +severity: warn  # ou error (costuma ser configurado no schema.yml)
+
+# Analyses (consultas soltas em /analyses)
+analyses:
+  dbt_estudo_sql_server:
+    +enabled: true
+
+# Macros (não costuma ter muita config aqui, mas existe a seção)
+macros:
+  dbt_estudo_sql_server:
+    +enabled: true
