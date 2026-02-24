@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: f_venda_item
+    description: "Fato de itens de venda."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ["SK_VENDA", "SK_PRODUTO"]
+
+    columns:
+      - name: SK_VENDA_ITEM
+        tests: [not_null, unique]
+
+      - name: SK_VENDA
+        tests:
+          - not_null
+          - relationships:
+              to: ref('f_venda')
+              field: SK_VENDA
+
+      - name: SK_PRODUTO
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_produto_venda')
+              field: SK_PRODUTO
+
+      # - name: QUANTIDADE
+      #   tests:
+      #     - dbt_utils.expression_is_true:
+      #         arguments:
+      #           # column-level: NÃO repetir o nome da coluna
+      #           expression: ">= 0"
+
+      # - name: PRECO_UNITARIO
+      #   tests:
+      #     - dbt_utils.expression_is_true:
+      #         arguments:
+      #           expression: ">= 0"
+
+      # - name: PRECO_TOTAL
+      #   tests:
+      #     - dbt_utils.expression_is_true:
+      #         arguments:
+      #           expression: ">= 0"

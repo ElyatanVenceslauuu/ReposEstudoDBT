@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: dim_vendedor_venda
+    description: "Dimensão de vendedores."
+    columns:
+      - name: SK_VENDEDOR
+        tests: [not_null, unique]
+
+      - name: ID_VENDEDOR
+        tests: [not_null, unique]
