@@ -1,0 +1,235 @@
+============================================================
+1) GENERIC TESTS (dbt_utils.*)
+============================================================
+
+1) dbt_utils.equal_rowcount
+O que faz: valida que duas tabelas/views têm a mesma contagem de linhas.
+Exemplo (schema.yml):
+  version: 2
+  models:
+    - name: fct_orders
+      tests:
+        - dbt_utils.equal_rowcount:
+            compare_model: ref('stg_orders')
+
+------------------------------------------------------------
+
+2) dbt_utils.fewer_rows_than
+O que faz: valida que o modelo testado tem menos linhas que o modelo comparado.
+Exemplo:
+  models:
+    - name: orders_filtered
+      tests:
+        - dbt_utils.fewer_rows_than:
+            compare_model: ref('orders_raw')
+
+------------------------------------------------------------
+
+3) dbt_utils.equality
+O que faz: valida que o conteúdo (linhas) de duas relations é equivalente (opcionalmente por colunas).
+Exemplo:
+  models:
+    - name: model_name
+      tests:
+        - dbt_utils.equality:
+            compare_model: ref('other_table_name')
+            compare_columns: ['col1','col2']
+
+------------------------------------------------------------
+
+4) dbt_utils.expression_is_true
+O que faz: valida que uma expressão é verdadeira para todas as linhas (pode usar where).
+Exemplo:
+  models:
+    - name: fct_orders
+      tests:
+        - dbt_utils.expression_is_true:
+            expression: "vl_itens + vl_frete - vl_desconto = vl_total"
+            config:
+              where: "dt_compra >= '2026-01-01'"
+
+------------------------------------------------------------
+
+5) dbt_utils.recency
+O que faz: valida que existe dado recente (ex.: até 1 dia atrás) em uma coluna de data/datetime.
+Exemplo:
+  models:
+    - name: stg_events
+      tests:
+        - dbt_utils.recency:
+            field: created_at
+            datepart: day
+            interval: 1
+
+------------------------------------------------------------
+
+6) dbt_utils.at_least_one
+O que faz: valida que existe ao menos 1 valor não-nulo (ou não-vazio, dependendo do adapter) para a coluna.
+Exemplo:
+  models:
+    - name: stg_clientes
+      columns:
+        - name: email
+          tests:
+            - dbt_utils.at_least_one
+
+------------------------------------------------------------
+
+7) dbt_utils.not_constant
+O que faz: valida que a coluna não está “travada” em um único valor para todas as linhas.
+Exemplo:
+  models:
+    - name: stg_clientes
+      columns:
+        - name: status
+          tests:
+            - dbt_utils.not_constant
+
+------------------------------------------------------------
+
+8) dbt_utils.not_empty_string
+O que faz: valida que não existem strings vazias ('') (por padrão, considera espaços como vazio via trim).
+Exemplo:
+  models:
+    - name: stg_clientes
+      columns:
+        - name: nome
+          tests:
+            - dbt_utils.not_empty_string
+
+Opção:
+  - dbt_utils.not_empty_string:
+      trim_whitespace: false
+
+------------------------------------------------------------
+
+9) dbt_utils.cardinality_equality
+O que faz: compara cardinalidade (count distinct) entre duas colunas/tabelas (domínio de valores).
+Exemplo:
+  models:
+    - name: fct_orders
+      columns:
+        - name: id_cliente
+          tests:
+            - dbt_utils.cardinality_equality:
+                to: ref('dim_clientes')
+                field: id_cliente
+
+------------------------------------------------------------
+
+10) dbt_utils.not_null_proportion
+O que faz: valida que a proporção de não-nulos é >= um limite (e opcionalmente <= outro).
+Exemplo:
+  models:
+    - name: stg_clientes
+      columns:
+        - name: telefone
+          tests:
+            - dbt_utils.not_null_proportion:
+                at_least: 0.70
+
+------------------------------------------------------------
+
+11) dbt_utils.not_accepted_values
+O que faz: valida que a coluna NÃO contém valores proibidos (blacklist).
+Exemplo:
+  models:
+    - name: stg_clientes
+      columns:
+        - name: uf
+          tests:
+            - dbt_utils.not_accepted_values:
+                values: ['XX', '??']
+
+------------------------------------------------------------
+
+12) dbt_utils.relationships_where
+O que faz: igual ao relationships do core, mas permite filtrar o lado “from” e/ou “to”.
+Exemplo:
+  models:
+    - name: fct_orders
+      columns:
+        - name: id_cliente
+          tests:
+            - dbt_utils.relationships_where:
+                to: ref('dim_clientes')
+                field: id_cliente
+                from_condition: "id_cliente is not null"
+                to_condition: "sn_ativo = 'S'"
+
+------------------------------------------------------------
+
+13) dbt_utils.mutually_exclusive_ranges
+O que faz: valida que ranges (vigências) não se sobrepõem (com particionamento opcional).
+Exemplo (SCD por cliente):
+  models:
+    - name: dim_assinaturas
+      tests:
+        - dbt_utils.mutually_exclusive_ranges:
+            lower_bound_column: dt_inicio
+            upper_bound_column: dt_fim
+            partition_by: id_cliente
+            gaps: allowed   # not_allowed | allowed | required
+
+------------------------------------------------------------
+
+14) dbt_utils.sequential_values
+O que faz: valida sequência (ex.: 1,2,3...) ou sequência temporal (datepart + interval).
+Exemplo (hora a hora):
+  seeds:
+    - name: util_hours
+      columns:
+        - name: date_hour
+          tests:
+            - dbt_utils.sequential_values:
+                datepart: hour
+                interval: 1
+
+------------------------------------------------------------
+
+15) dbt_utils.unique_combination_of_columns
+O que faz: valida unicidade de chave composta.
+Exemplo:
+  models:
+    - name: fct_sales
+      tests:
+        - dbt_utils.unique_combination_of_columns:
+            combination_of_columns: ['id_loja','dt_competencia','id_produto']
+
+------------------------------------------------------------
+
+16) dbt_utils.accepted_range
+O que faz: valida que valores estão dentro de um range (min/max), inclusive ou exclusivo.
+Exemplo:
+  models:
+    - name: fct_sales
+      columns:
+        - name: vl_total
+          tests:
+            - dbt_utils.accepted_range:
+                min_value: 0
+                inclusive: true
+
+============================================================
+2) CRIAÇÃO DE SK (Surrogate Key)
+============================================================
+
+Macro: dbt_utils.generate_surrogate_key(columns)
+
+O que faz:
+- Gera uma chave substituta determinística (hash) a partir de uma lista de colunas.
+- Útil para: Dimensões/Fatos, chaves técnicas, junções, SCD, integração multi-sistemas.
+
+Exemplo (model SQL):
+  select
+    {{ dbt_utils.generate_surrogate_key(['id_cliente','dt_competencia']) }} as sk_cliente_comp,
+    *
+  from {{ ref('stg_clientes') }}
+
+Boas práticas rápidas:
+- Use as colunas que definem o “grão” real do registro.
+- Se for SCD2, normalmente entra a natural key + dt_inicio (ou o atributo que define a versão).
+- Se quiser manter comportamento “legado” tratando null como string vazia:
+  dbt_project.yml:
+    vars:
+      surrogate_key_treat_nulls_as_empty_strings: true
