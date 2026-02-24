@@ -18,7 +18,8 @@ clean-targets:
 models:
   dbt_estudo_sql_server:
     stage:
-      +materialized: ephemeral
+      +schema: stage
+      +materialized: table
 
     trusted:
       +schema: trusted

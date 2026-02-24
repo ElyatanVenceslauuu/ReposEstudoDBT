@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: trusted_entregador_venda
+    description: "Cadastro de entregadores (normalizado)."
+    columns:
+      - name: ID_ENTREGADOR
+        tests:
+          - not_null
+          - unique

@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: trusted_cliente_venda
+    description: "Cadastro de clientes (normalizado)."
+    columns:
+      - name: ID_CLIENTE
+        tests:
+          - not_null
+          - unique
