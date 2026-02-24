@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: stg_tabela_temporal
+    description: "Espelho da raw.tabela_temporal para aplicar testes no dbt."
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ["ID_DA_VENDA", "ID_PRODUTO"]
+
+    columns:
+      - name: ID_DA_VENDA
+        tests: [not_null]
+      - name: ID_PRODUTO
+        tests: [not_null]

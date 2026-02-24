@@ -1,0 +1,78 @@
+version: 2
+
+sources:
+  - name: raw               # nome lógico do source (o que você usa no source())
+    database: ESTUDOS       # opcional: se não colocar, herda do profile/target
+    schema: dbo             # schema onde as tabelas realmente estão no SQL Server
+    loader: sqlserver
+    loaded_at_field: execution_date # tudo adicionado entre o schema e tables vai valer para todas as tabelas.
+    # se eu quiser que afete somente uma tabela, coloco após o "tables". a mesma coisa para colunas.
+
+    meta: #metadados customizados (organização/governança)
+      owner: "DT HOUSE"
+      source_system: "carga fria sql server"
+      contains_pii: true
+
+    freshness: #gerar um alerta após falhas de execuções
+      warn_after: {count: 1, period: day} # 1 dia sem atualizar
+      error_after: {count: 2, period: day} # 2 dias sem atualizar
+
+    tables:
+      - name: tabela_temporal
+        columns:
+          - name: ID_DA_VENDA
+            description: "Identificador único da venda."
+          - name: DATA_DA_VENDA
+            description: "Data em que a venda foi realizada."
+          - name: ID_CLIENTE
+            description: "Identificador do cliente associado à venda."
+          - name: NOME_DO_CLIENTE
+            description: "Nome do cliente associado à venda."
+          - name: RUA
+            description: "Logradouro (rua/avenida) do endereço do cliente."
+          - name: NUMERO
+            description: "Número do endereço do cliente."
+          - name: BAIRRO
+            description: "Bairro do endereço do cliente."
+          - name: REFERENCIA
+            description: "Ponto de referência do endereço do cliente."
+          - name: CIDADE
+            description: "Cidade do endereço do cliente."
+          - name: ESTADO
+            description: "UF (estado) do endereço do cliente."
+          - name: CEP
+            description: "CEP do endereço do cliente."
+          - name: REGIAO
+            description: "Região associada ao endereço do cliente (ex.: Norte, Sul, etc.)."
+          - name: ID_PRODUTO
+            description: "Identificador do produto vendido."
+          - name: NOME_DO_PRODUTO
+            description: "Nome/descrição do produto vendido."
+          - name: PRECO_UNITARIO
+            description: "Preço unitário do produto no momento da venda."
+          - name: DESCONTO_MAXIMO
+            description: "Desconto máximo permitido para o produto (regra comercial)."
+          - name: SALDO_EM_ESTOQUE
+            description: "Saldo em estoque do produto (na data de referência do registro)."
+          - name: QUANTIDADE
+            description: "Quantidade do produto vendida na transação."
+          - name: DESCONTO
+            description: "Valor ou percentual de desconto aplicado na venda (conforme regra da origem)."
+          - name: PRECO_TOTAL
+            description: "Valor total do item/venda após aplicação de desconto (conforme regra da origem)."
+          - name: ID_VENDEDOR
+            description: "Identificador do vendedor principal responsável pela venda."
+          - name: ID_VENDEDOR_SECUNDARIO
+            description: "Identificador do vendedor secundário (quando aplicável)."
+          - name: NOME_DO_VENDEDOR
+            description: "Nome do vendedor associado à venda."
+          - name: FUNCAO_DO_VENDEDOR
+            description: "Função/cargo do vendedor (ex.: atendente, consultor, etc.)."
+          - name: DATA_DE_ADMISSAO_VENDEDOR
+            description: "Data de admissão/contratação do vendedor."
+          - name: TIPO_DE_VENDA
+            description: "Tipo/canal da venda (ex.: balcão, online, delivery, etc.)."
+          - name: ID_ENTREGADOR
+            description: "Identificador do entregador responsável pela entrega (quando aplicável)."
+          - name: NOME_ENTREGADOR
+            description: "Nome do entregador responsável pela entrega (quando aplicável)."

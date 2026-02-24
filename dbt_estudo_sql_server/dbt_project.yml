@@ -27,3 +27,6 @@ models:
     refined:
       +schema: refined
       +materialized: table
+
+seeds:
+  +schema: seeds

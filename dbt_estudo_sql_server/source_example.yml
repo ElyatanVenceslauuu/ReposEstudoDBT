@@ -1,0 +1,153 @@
+# source_example.yml
+# Exemplo COMPLETO e bem documentado de um arquivo de sources no dbt
+# (com 2 tabelas) mostrando as possibilidades mais comuns de configuração.
+
+version: 2
+
+sources:
+  # ---------------------------------------------------------------------------
+  # SOURCE (nível "conjunto" de tabelas do mesmo sistema/esquema)
+  # ---------------------------------------------------------------------------
+  - name: raw                      # nome lógico do source (usado no source('raw','...'))
+    description: >
+      Fonte RAW do SQL Server (OLTP). Este source representa um conjunto de tabelas
+      dentro do mesmo database/schema.
+
+    # Onde as tabelas existem fisicamente no warehouse
+    database: ESTUDOS              # (opcional) em alguns adapters: database/catalog
+    schema: dbo                    # schema físico
+
+    # Metadados (não viram coluna; usados em docs/manifest e por ferramentas)
+    loader: sqlserver              # texto livre: "quem carrega" (airbyte, fivetran, composer, etc.)
+    tags: ["raw", "oltp", "sqlserver"]  # tags para seleção e organização
+
+    meta:                          # dicionário livre (governança / owner / domínio / etc.)
+      owner: "DT HOUSE"
+      domain: "vendas"
+      contains_pii: true
+      sla_minutes: 60
+
+    # Quoting: força aspas em database/schema/identifier (útil se tiver espaços/palavras reservadas)
+    quoting:
+      database: false
+      schema: false
+      identifier: false
+
+    # -------------------------------------------------------------------------
+    # FRESHNESS (pode ser definido no source para valer como default em todas as tabelas)
+    # -------------------------------------------------------------------------
+    loaded_at_field: execution_date     # coluna (timestamp/datetime) usada p/ medir freshness
+    freshness:
+      warn_after: { count: 6, period: hour }    # atraso aceitável -> WARN
+      error_after: { count: 12, period: hour }  # atraso máximo -> ERROR
+
+    # Alternativa ao loaded_at_field:
+    # Se você NÃO tiver coluna de carga, pode usar uma query pra calcular o "loaded_at".
+    # (Use UM OU OUTRO; quando existe loaded_at_field, normalmente não precisa do query.)
+    # loaded_at_query: "select max(execution_date) from {{ source('raw','tabela_temporal') }}"
+
+    # -------------------------------------------------------------------------
+    # TABLES (cada tabela dentro do source)
+    # -------------------------------------------------------------------------
+    tables:
+      # =======================================================================
+      # TABELA 1 (usa os defaults do source)
+      # =======================================================================
+      - name: tabela_temporal          # nome lógico da tabela no dbt
+        identifier: tabela_temporal    # (opcional) nome físico real (se for diferente do name)
+        description: "Tabela de pedidos vinda do OLTP."
+
+        # tags/meta podem existir no nível da tabela também
+        tags: ["vendas", "pedidos"]
+        meta:
+          pii_columns: ["NOME_DO_CLIENTE", "CEP"]
+          data_owner: "time_comercial"
+
+        # quoting específico da tabela (sobrescreve o do source)
+        quoting:
+          identifier: false
+
+        # Freshness pode ser sobrescrito por tabela (se ela atualiza mais rápido/lento)
+        # (Se remover esse bloco, herda do source)
+        freshness:
+          warn_after: { count: 30, period: minute }
+          error_after: { count: 60, period: minute }
+
+        # Você também pode sobrescrever o loaded_at_field por tabela:
+        # loaded_at_field: dt_atualizacao
+
+        columns:
+          - name: ID_DA_VENDA
+            description: "Identificador único da venda."
+            tests:
+              - not_null
+              - unique
+            meta:
+              pii: false
+
+          - name: DATA_DA_VENDA
+            description: "Data em que a venda foi realizada."
+            tests:
+              - not_null
+
+          - name: ID_CLIENTE
+            description: "Identificador do cliente associado à venda."
+            tests:
+              - not_null
+
+          - name: NOME_DO_CLIENTE
+            description: "Nome do cliente."
+            meta:
+              pii: true
+
+          - name: PRECO_TOTAL
+            description: "Valor total da venda."
+            tests:
+              # Exemplo de teste genérico com config (severity, etc.)
+              - not_null:
+                  config:
+                    severity: error
+
+      # =======================================================================
+      # TABELA 2 (exemplos de diferenças: identifier diferente, sem PII, sem override)
+      # =======================================================================
+      - name: clientes
+        identifier: tb_clientes_oltp      # nome físico real no SQL Server
+        description: "Cadastro de clientes (OLTP)."
+
+        tags: ["cadastro"]
+        meta:
+          contains_pii: true
+          retention_policy: "365d"
+
+        # Aqui a tabela vai herdar loaded_at_field e freshness do source
+        # Se quiser desativar freshness só pra esta tabela, você pode simplesmente não
+        # definir freshness em lugar nenhum (ou separar sources), mas não há um "enabled:false"
+        # específico só para freshness: o padrão é "não definido -> não checa".
+
+        columns:
+          - name: ID_CLIENTE
+            description: "Chave do cliente."
+            tests:
+              - not_null
+              - unique
+
+          - name: EMAIL
+            description: "Email do cliente."
+            meta:
+              pii: true
+            tests:
+              # Exemplo: aceita apenas emails com @
+              - dbt_utils.expression_is_true:
+                  expression: "EMAIL like '%@%'"   # requer pacote dbt_utils
+
+          - name: UF
+            description: "UF do cliente."
+            tests:
+              - accepted_values:
+                  values: ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"]
+
+          - name: DT_CADASTRO
+            description: "Data de cadastro."
+            tests:
+              - not_null
