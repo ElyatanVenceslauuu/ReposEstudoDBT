@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: trusted_vendedor_venda
+    description: "Cadastro de vendedores (normalizado)."
+    columns:
+      - name: ID_VENDEDOR
+        tests:
+          - not_null
+          - unique

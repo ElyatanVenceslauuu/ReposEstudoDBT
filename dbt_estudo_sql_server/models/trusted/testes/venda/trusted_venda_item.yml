@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: trusted_venda_item
+    description: "Itens de venda (1 linha por ID_DA_VENDA + ID_PRODUTO)."
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ["ID_DA_VENDA", "ID_PRODUTO"]
+
+    columns:
+      - name: ID_DA_VENDA
+        tests:
+          - not_null
+          - relationships:
+              to: ref('int_venda')
+              field: ID_DA_VENDA
+
+      - name: ID_PRODUTO
+        tests:
+          - not_null
+          - relationships:
+              to: ref('int_produto')
+              field: ID_PRODUTO
+
+      - name: QUANTIDADE
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "QUANTIDADE >= 0"
+
+      - name: PRECO_UNITARIO
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "PRECO_UNITARIO >= 0"
+
+      - name: PRECO_TOTAL
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "PRECO_TOTAL >= 0"

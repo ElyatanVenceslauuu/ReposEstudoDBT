@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: trusted_produto_venda
+    description: "Cadastro de produtos (normalizado)."
+    columns:
+      - name: ID_PRODUTO
+        tests:
+          - not_null
+          - unique
