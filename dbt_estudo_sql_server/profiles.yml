@@ -7,7 +7,7 @@ dbt_estudo_sql_server:
       server: "ELYATANVENCESLA"
       port: 1433
       database: "ESTUDOS"
-      schema: "DBT_ESTUDO"
+      schema: "dbt_estudo"
       windows_login: true
       encrypt: true
       trust_cert: true
