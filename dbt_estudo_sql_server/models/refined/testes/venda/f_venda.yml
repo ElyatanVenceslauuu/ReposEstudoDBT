@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: f_venda
+    description: "Fato de vendas (cabeçalho)."
+    columns:
+      - name: SK_VENDA
+        tests: [not_null, unique]
+
+      - name: ID_DA_VENDA
+        tests: [not_null, unique]
+
+      - name: SK_CLIENTE
+        tests:
+          - relationships:
+              to: ref('dim_cliente_venda')
+              field: SK_CLIENTE
+
+      - name: SK_VENDEDOR
+        tests:
+          - relationships:
+              to: ref('dim_vendedor_venda')
+              field: SK_VENDEDOR
+
+      - name: SK_ENTREGADOR
+        tests:
+          - relationships:
+              to: ref('dim_entregador_venda')
+              field: SK_ENTREGADOR

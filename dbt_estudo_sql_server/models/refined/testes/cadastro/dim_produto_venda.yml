@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: dim_produto_venda
+    description: "Dimensão de produtos."
+    columns:
+      - name: SK_PRODUTO
+        tests: [not_null, unique]
+
+      - name: ID_PRODUTO
+        tests: [not_null, unique]

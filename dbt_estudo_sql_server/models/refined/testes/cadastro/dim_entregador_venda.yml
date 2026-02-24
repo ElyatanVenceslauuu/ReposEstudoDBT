@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: dim_entregador_venda
+    description: "Dimensão de entregadores."
+    columns:
+      - name: SK_ENTREGADOR
+        tests: [not_null, unique]
+
+      - name: ID_ENTREGADOR
+        tests: [not_null, unique]
