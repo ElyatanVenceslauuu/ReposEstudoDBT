@@ -19,3 +19,21 @@ sources:
 
     tables:
       - name: tabela_temporal
+
+  - name: raw_dbt
+    database: ESTUDO_DBT
+    schema: dbo
+    loader: sqlserver
+    loaded_at_field: execution_date
+
+    meta: #metadados customizados (organização/governança)
+      owner: "DT HOUSE"
+      source_system: "carga fria sql server"
+      contains_pii: true
+
+    freshness: #gerar um alerta após falhas de execuções
+      warn_after: {count: 1, period: day} # 1 dia sem atualizar
+      error_after: {count: 2, period: day} # 2 dias sem atualizar
+
+    tables:
+      - name: pedidos_transacionais
