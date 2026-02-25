@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: dim_cliente_cadastro_seed
+    description: "Refined (dim) de clientes a partir da versão atual do snapshot. Contém SK do cliente."
+    columns:
+      - name: sk_cliente
+        description: "Surrogate key do cliente (hash do id_cliente)."
+        tests:
+          - not_null
+          - unique
+
+      - name: id_cliente
+        description: "Chave natural do cliente."
+        tests:
+          - not_null
+
+      - name: nome_do_cliente
+        tests: 
+          - not_null
