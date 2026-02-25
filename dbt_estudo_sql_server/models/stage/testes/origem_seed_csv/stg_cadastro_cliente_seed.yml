@@ -1,0 +1,60 @@
+version: 2
+
+seeds:
+  - name: stg_cadastro_cliente_seed 
+    description: "Seed de clientes (CSV) para prática de snapshot."
+    columns:
+      - name: id_cliente
+        description: "Identificador do cliente."
+        tests:
+          - not_null
+          - unique
+
+      - name: nome_do_cliente
+        description: "Nome do cliente."
+        tests:
+          - not_null
+
+      - name: rua
+        description: "Rua."
+        tests:
+          - not_null
+
+      - name: numero
+        description: "Número."
+        tests:
+          - not_null
+
+      - name: bairro
+        description: "Bairro."
+        tests:
+          - not_null
+
+      - name: cidade
+        description: "Cidade."
+        tests:
+          - not_null
+
+      - name: estado
+        description: "UF."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AL']
+
+      - name: cep
+        description: "CEP."
+        tests:
+          - not_null
+
+      - name: regiao
+        description: "Região."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Nordeste']
+
+      - name: dt_atualizacao
+        description: "Timestamp de atualização do registro no seed (para snapshot por timestamp)."
+        tests:
+          - not_null

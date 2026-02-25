@@ -1,0 +1,10 @@
+version: 2
+
+snapshots:
+  - name: snap_cadastro_cliente_seed_yml
+    relation: ref('stg_cadastro_cliente_seed')
+    config:
+      target_schema: snapshots
+      strategy: check
+      check_cols: all
+      unique_key: id_cliente
