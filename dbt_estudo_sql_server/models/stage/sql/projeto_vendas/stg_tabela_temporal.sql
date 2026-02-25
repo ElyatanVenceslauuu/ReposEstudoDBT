@@ -1,6 +1,4 @@
-  config {
-    tags=['stg','pedidos_estage','vendas']
-  }
+{{ config(materialized='table', tags=['stg','pedidos_estage']) }}
   
   with consulta as (
     select 
@@ -32,7 +30,8 @@
         TIPO_DE_VENDA,
         ID_ENTREGADOR,
         NOME_ENTREGADOR,
-        SYSUTCDATETIME() AS execution_date,
+        --SYSUTCDATETIME() AS execution_date,
+        cast('{{ run_started_at }}' as datetime2) as execution_date,
         ROW_NUMBER() OVER (
           PARTITION BY ID_DA_VENDA, ID_PRODUTO
           ORDER BY (SELECT 1)
@@ -43,4 +42,4 @@
   *
   from consulta
   where 
-    rn = 1
+    rn = 1;
