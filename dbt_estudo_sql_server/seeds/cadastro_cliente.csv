@@ -1,5 +1,5 @@
 id_cliente,nome_do_cliente,rua,numero,bairro,referencia,cidade,estado,cep,regiao,dt_atualizacao
-1001,Ana Beatriz Lima,Rua das Acácias,150,Jatiúca,Próx. ao mercado,Maceió,AL,57035-120,Nordeste,2026-02-01 08:10:00
+1001,Ana Beatriz Lima,Rua das Acácias,170,Jatiúca,Próx. ao mercado na última esquina,Maceió,AL,57035-120,Nordeste,2026-02-01 08:10:00
 1002,Carlos Henrique Souza,Avenida Brasil,450,Farol,Ed. Solaris,Maceió,AL,57050-410,Nordeste,2026-02-01 08:10:00
 1003,Mariana Alves Santos,Rua São Jorge,33,Ponta Verde,Esquina com padaria,Maceió,AL,57035-220,Nordeste,2026-02-01 08:10:00
 1004,João Pedro Ribeiro,Rua Barão de Jaraguá,910,Jaraguá,Perto do porto,Maceió,AL,57022-160,Nordeste,2026-02-01 08:10:00
