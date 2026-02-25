@@ -1,0 +1,257 @@
+========================================
+DBT SNAPSHOTS — GUIA DE CONFIGURAÇÕES
+========================================
+
+----------------------------------------
+1) Conceito rápido
+----------------------------------------
+Snapshots implementam SCD Tipo 2: guardam histórico de mudanças em uma tabela "mutável".
+dbt cria uma tabela de snapshot com meta-colunas como:
+- dbt_scd_id, dbt_updated_at, dbt_valid_from, dbt_valid_to
+e opcionalmente dbt_is_deleted quando hard_deletes='new_record'.
+
+(Referência: Add snapshots to your DAG)
+----------------------------------------
+
+
+----------------------------------------
+2) Onde configurar snapshots
+----------------------------------------
+A) Método "LEGACY" (mais comum no dia a dia):
+   Arquivo .sql em snapshots/ com bloco:
+   {% snapshot nome %}
+   {{ config(...) }}
+   select ...
+   {% endsnapshot %}
+
+B) Método "NOVO" (dbt Core 1.9+):
+   Definir snapshots em properties YAML (melhor para configs mais novas).
+   (Você pode manter legacy e ir migrando com calma.)
+
+----------------------------------------
+
+
+----------------------------------------
+3) Configs principais (todas)
+----------------------------------------
+
+3.1) unique_key (OBRIGATÓRIO)
+- Define como o dbt identifica unicamente cada registro.
+- Pode ser uma coluna ou expressão (se você fizer no SELECT).
+Ex: unique_key='id_cliente'
+
+3.2) strategy (OBRIGATÓRIO)
+- timestamp (recomendado)
+- check
+Ex: strategy='timestamp'  ou  strategy='check'
+
+3.3) updated_at (OBRIGATÓRIO para strategy='timestamp')
+- Nome da coluna que representa a última atualização do registro.
+Ex: updated_at='dt_atualizacao'
+
+3.4) check_cols (OBRIGATÓRIO para strategy='check')
+- Lista de colunas para comparar OU 'all'
+Ex: check_cols=['nome','cep']  ou  check_cols='all'
+Obs: 'all' pode ser menos performático.
+
+3.5) target_schema (OPCIONAL, mas muito usado)
+- Schema onde o snapshot será criado.
+Ex: target_schema='snapshots'
+
+3.6) target_database (LEGACY / cuidado)
+- Database onde o snapshot será criado.
+- Em dbt Core v1.9+ a doc diz que isso não é mais utilizado da mesma forma.
+- Em geral prefira 'database' quando aplicável.
+Ex (legacy): target_database='ESTUDOS'
+
+3.7) hard_deletes (OPCIONAL, Core 1.9+)
+Controla o que fazer quando um registro "some" da fonte.
+Opções:
+- ignore (default): não faz nada
+- invalidate: invalida (equivale ao antigo invalidate_hard_deletes=true)
+- new_record: cria um novo registro com dbt_is_deleted=True
+Obs: hard_deletes suporta alguns adapters (ver doc).
+
+3.8) invalidate_hard_deletes (LEGACY)
+- Para snapshots antigos. Para novos snapshots, prefira hard_deletes='invalidate'.
+
+3.9) dbt_valid_to_current (OPCIONAL, Core 1.9+)
+- Em vez de dbt_valid_to = NULL para registro atual, você pode setar
+  um valor tipo '9999-12-31' para facilitar filtros por intervalo.
+Ex: dbt_valid_to_current='9999-12-31'
+
+3.10) snapshot_meta_column_names (OPCIONAL, Core 1.9+)
+- Renomeia as colunas meta do snapshot
+Ex:
+snapshot_meta_column_names={
+  "dbt_valid_from": "dt_inicio",
+  "dbt_valid_to": "dt_fim",
+  "dbt_scd_id": "sk_scd",
+  "dbt_updated_at": "dt_update",
+  "dbt_is_deleted": "fl_deletado"
+}
+
+3.11) Hooks (OPCIONAL)
+Snapshots suportam pre-hook e post-hook (além de on-run-start/end no projeto).
+
+
+----------------------------------------
+4) Templates prontos (LEGACY .sql)
+----------------------------------------
+
+4.1) TIMESTAMP (mínimo recomendado)
+------------------------------------
+{% snapshot snap_clientes %}
+{{
+  config(
+    target_schema='snapshots',
+    unique_key='id_cliente',
+    strategy='timestamp',
+    updated_at='dt_atualizacao'
+  )
+}}
+select * from {{ ref('trusted_clientes') }}
+{% endsnapshot %}
+
+4.2) TIMESTAMP + dbt_valid_to_current (fim aberto com data futura)
+------------------------------------------------------------------
+{% snapshot snap_clientes %}
+{{
+  config(
+    target_schema='snapshots',
+    unique_key='id_cliente',
+    strategy='timestamp',
+    updated_at='dt_atualizacao',
+    dbt_valid_to_current='9999-12-31'
+  )
+}}
+select * from {{ ref('trusted_clientes') }}
+{% endsnapshot %}
+
+4.3) TIMESTAMP + hard_deletes='invalidate' (marca deletados como inválidos)
+---------------------------------------------------------------------------
+{% snapshot snap_clientes %}
+{{
+  config(
+    target_schema='snapshots',
+    unique_key='id_cliente',
+    strategy='timestamp',
+    updated_at='dt_atualizacao',
+    hard_deletes='invalidate'
+  )
+}}
+select * from {{ ref('trusted_clientes') }}
+{% endsnapshot %}
+
+4.4) TIMESTAMP + hard_deletes='new_record' (cria linha com dbt_is_deleted)
+--------------------------------------------------------------------------
+{% snapshot snap_clientes %}
+{{
+  config(
+    target_schema='snapshots',
+    unique_key='id_cliente',
+    strategy='timestamp',
+    updated_at='dt_atualizacao',
+    hard_deletes='new_record'
+  )
+}}
+select * from {{ ref('trusted_clientes') }}
+{% endsnapshot %}
+
+4.5) TIMESTAMP + snapshot_meta_column_names (renomear meta colunas)
+-------------------------------------------------------------------
+{% snapshot snap_clientes %}
+{{
+  config(
+    target_schema='snapshots',
+    unique_key='id_cliente',
+    strategy='timestamp',
+    updated_at='dt_atualizacao',
+    snapshot_meta_column_names={
+      "dbt_valid_from": "dt_inicio",
+      "dbt_valid_to": "dt_fim",
+      "dbt_scd_id": "sk_scd",
+      "dbt_updated_at": "dt_update"
+    }
+  )
+}}
+select * from {{ ref('trusted_clientes') }}
+{% endsnapshot %}
+
+4.6) CHECK (mínimo — sem updated_at confiável)
+-----------------------------------------------
+{% snapshot snap_clientes %}
+{{
+  config(
+    target_schema='snapshots',
+    unique_key='id_cliente',
+    strategy='check',
+    check_cols='all'
+  )
+}}
+select * from {{ ref('trusted_clientes') }}
+{% endsnapshot %}
+
+4.7) CHECK (lista de colunas específicas)
+-----------------------------------------
+{% snapshot snap_clientes %}
+{{
+  config(
+    target_schema='snapshots',
+    unique_key='id_cliente',
+    strategy='check',
+    check_cols=['nome_do_cliente','rua','numero','bairro','cidade','estado','cep','regiao']
+  )
+}}
+select * from {{ ref('trusted_clientes') }}
+{% endsnapshot %}
+
+4.8) CHECK + updated_at (quando updated_at existe mas não é confiável sozinho)
+------------------------------------------------------------------------------
+Ideia: muda quando check_cols mudar; se updated_at não for NULL, ele é usado
+na linha criada, senão cai no timestamp do snapshot.
+{% snapshot snap_clientes %}
+{{
+  config(
+    target_schema='snapshots',
+    unique_key='id_cliente',
+    strategy='check',
+    check_cols=['cep','rua','numero'],
+    updated_at='dt_atualizacao'
+  )
+}}
+select * from {{ ref('trusted_clientes') }}
+{% endsnapshot %}
+
+4.9) LEGACY invalidate_hard_deletes (evitar em snapshots novos)
+---------------------------------------------------------------
+{% snapshot snap_clientes %}
+{{
+  config(
+    target_schema='snapshots',
+    unique_key='id_cliente',
+    strategy='timestamp',
+    updated_at='dt_atualizacao',
+    invalidate_hard_deletes=true
+  )
+}}
+select * from {{ ref('trusted_clientes') }}
+{% endsnapshot %}
+
+
+----------------------------------------
+5) Dicas de uso
+----------------------------------------
+- Prefira strategy='timestamp' quando possível: é mais robusto a mudanças de schema. 
+- Garanta que unique_key é realmente único (crie testes).
+- Se quiser facilitar filtros por intervalo, use dbt_valid_to_current.
+- Para deletados: hard_deletes (Core 1.9+) substitui melhor o invalidate_hard_deletes antigo.
+
+----------------------------------------
+6) Comandos úteis
+----------------------------------------
+Rodar um snapshot específico:
+dbt snapshot -s snap_clientes
+
+Rodar tudo:
+dbt snapshot

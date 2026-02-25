@@ -1,0 +1,21 @@
+id_cliente,nome_do_cliente,rua,numero,bairro,referencia,cidade,estado,cep,regiao,dt_atualizacao
+1001,Ana Beatriz Lima,Rua das Acácias,150,Jatiúca,Próx. ao mercado,Maceió,AL,57035-120,Nordeste,2026-02-01 08:10:00
+1002,Carlos Henrique Souza,Avenida Brasil,450,Farol,Ed. Solaris,Maceió,AL,57050-410,Nordeste,2026-02-01 08:10:00
+1003,Mariana Alves Santos,Rua São Jorge,33,Ponta Verde,Esquina com padaria,Maceió,AL,57035-220,Nordeste,2026-02-01 08:10:00
+1004,João Pedro Ribeiro,Rua Barão de Jaraguá,910,Jaraguá,Perto do porto,Maceió,AL,57022-160,Nordeste,2026-02-01 08:10:00
+1005,Fernanda Costa Menezes,Rua dos Navegantes,77,Cruz das Almas,Condomínio Atlântico,Maceió,AL,57038-000,Nordeste,2026-02-01 08:10:00
+1006,Lucas Martins Oliveira,Rua Professor Sandoval Arroxelas,200,Ponta Verde,Apto 302,Maceió,AL,57035-230,Nordeste,2026-02-01 08:10:00
+1007,Patrícia Gomes Silva,Rua Tereza de Azevedo,18,Trapiche da Barra,Próx. ao posto,Maceió,AL,57010-120,Nordeste,2026-02-01 08:10:00
+1008,Bruno Rocha Nascimento,Avenida Fernandes Lima,1550,Gruta de Lourdes,Ed. Mirante,Maceió,AL,57052-405,Nordeste,2026-02-01 08:10:00
+1009,Juliana Pereira Araújo,Rua Marquês de Abrantes,61,Levada,Perto da ponte,Maceió,AL,57017-120,Nordeste,2026-02-01 08:10:00
+1010,Rafael Almeida Fernandes,Rua Coronel Maia,410,Benedito Bentes,Conj. São Luiz,Maceió,AL,57085-330,Nordeste,2026-02-01 08:10:00
+1011,Renata Barbosa Lima,Rua do Sol,95,Centro,Próx. à praça,Maceió,AL,57020-060,Nordeste,2026-02-01 08:10:00
+1012,Diego Santos Carvalho,Avenida Menino Marcelo,1020,Antares,Próx. ao shopping,Maceió,AL,57083-410,Nordeste,2026-02-01 08:10:00
+1013,Isabela Ferreira Costa,Rua da Praia,12,Pajuçara,Apto 801,Maceió,AL,57030-220,Nordeste,2026-02-01 08:10:00
+1014,Gabriel Rodrigues Melo,Rua Doutor Antônio Gouveia,520,Pajuçara,Ed. Brisas,Maceió,AL,57030-170,Nordeste,2026-02-01 08:10:00
+1015,Carolina Monteiro Nunes,Rua Hamilton de Barros Soutinho,88,Jatiúca,Próx. ao parque,Maceió,AL,57035-690,Nordeste,2026-02-01 08:10:00
+1016,Felipe Xavier Batista,Rua Engenheiro Mário de Gusmão,310,Ponta Verde,Condomínio Mar Azul,Maceió,AL,57035-000,Nordeste,2026-02-01 08:10:00
+1017,Vanessa Ribeiro Dantas,Rua Miguel Palmeira,66,Pinheiro,Apto 104,Maceió,AL,57057-000,Nordeste,2026-02-01 08:10:00
+1018,Thiago Araújo Correia,Rua Deputado José Lages,140,Ponta Verde,Próx. ao colégio,Maceió,AL,57035-330,Nordeste,2026-02-01 08:10:00
+1019,Letícia Moraes Freitas,Rua Sargento Benevides,25,Poço,Próx. ao terminal,Maceió,AL,57025-630,Nordeste,2026-02-01 08:10:00
+1020,André Luiz Pereira,Rua Capitão Marinho Falcão,70,Tabuleiro do Martins,Conj. Santa Maria,Maceió,AL,57081-220,Nordeste,2026-02-01 08:10:00
