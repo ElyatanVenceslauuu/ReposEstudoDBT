@@ -17,7 +17,6 @@ sources:
       warn_after: {count: 1, period: day} # 1 dia sem atualizar
       error_after: {count: 2, period: day} # 2 dias sem atualizar
 
-
     tables:
       - name: tabela_temporal
 
