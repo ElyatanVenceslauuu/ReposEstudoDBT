@@ -1,25 +1,25 @@
-# venvs (evite ter 2; mas ignorando ambas não vaza pro git)
-.venv_sql_server/
-venv_sql_server/
 .venv/
 venv/
+.env/
 
-# dbt
+.venv_sql_server/
+venv_sql_server/
+
+__pycache__/
+*.py[cod]
+*$py.class
+
 target/
 dbt_packages/
 logs/
 
-# profiles (SE você guarda credenciais aí, é melhor ignorar)
-dbt_estudo_sql_server/
+.user.yml
+*.user.yml
+
 profiles.yml
+**/profiles.yml
 
-# python
-__pycache__/
-*.pyc
-
-# VS Code
 .vscode/
 
-# OS
 .DS_Store
 Thumbs.db
