@@ -1,0 +1,17 @@
+version: 2
+
+exposures:
+  - name: pbi_relatorio_faturamento
+    label: "PBI - Relatório Faturamento"
+    type: dashboard
+    maturity: high
+    url: "https://app.powerbi.com/groups/.../reports/..."
+    description: >
+      Relatório de faturamento com visão por período, unidade e convênio.
+    owner:
+      name: Elyatan
+      email: elyatan@empresa.com
+
+    depends_on:
+      - ref('f_venda')
+      - ref('dim_cliente_venda')

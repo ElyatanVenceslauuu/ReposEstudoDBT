@@ -4,7 +4,7 @@ config-version: 2
 
 profile: "dbt_estudo_sql_server"
 
-model-paths: ["models"]
+model-paths: ["models","exposures"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
 seed-paths: ["seeds"]
